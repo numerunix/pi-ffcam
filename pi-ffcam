@@ -1,0 +1,47 @@
+#!/bin/bash
+#
+# Streams a 'live view' from the attached pi camera
+# (/dev/video0). Pulls the stream in h264, decodes
+# it using h264_v4l2m2m, and then displays it in an
+# SDL window.
+#
+# Intended as a proof-of-concept only; you'd do things
+# differently in a production app! For example, there'd
+# be no need to pull an encoded stream from the camera
+# only to decode it again for display (and even if you
+# did, there'd be no need to encapsulate it and send
+# over a pipe, as here).
+#
+# Copyright (c) 2019 sakaki <sakaki@deciban.com>
+# License: GPL v3+
+# NO WARRANTY
+
+set -e
+set -u
+shopt -s nullglob
+
+ICON="/usr/share/pixmaps/pi-ffcam.png"
+MJR_VER=$(uname -r | cut -d '.' -f1)
+MNR_VER=$(uname -r | cut -d '.' -f2)
+if ((MJR_VER<4 || (MJR_VER==4 && MNR_VER<19))); then
+    zenity --window-icon="${ICON}" --error --no-wrap --text="You must be running <i>at least</i> kernel version 4.19 to use this!" --timeout=5
+    exit 1
+fi
+GPU_MEM_MIB="$(grep -o '[[:digit:]]*' <(vcgencmd get_mem gpu))"
+if ((GPU_MEM_MIB<128)); then
+    zenity --window-icon="${ICON}" --error --no-wrap --text="You must set gpu_mem=128 (or greater) to use this!" --timeout=5
+    exit 1
+fi
+if ! [[ -e /dev/video0 ]]; then
+    zenity --window-icon="${ICON}" --error --no-wrap --text="No /dev/video0 present! Do you have a camera module plugged in?" --timeout=5
+    exit 1
+fi
+# looks good to go, stream live view!
+ffmpeg -f video4linux2 -input_format h264 \
+       -video_size 640x480 \
+       -framerate 30 -re -i /dev/video0 \
+       -vcodec copy -f matroska \
+       - -nostats -loglevel 0 | \
+    ffplay -vcodec h264_v4l2m2m \
+           -window_title "Camera Live View (/dev/video0:h264, h264_v4l2m2m, sdl)" \
+           - -nostats -loglevel 0
