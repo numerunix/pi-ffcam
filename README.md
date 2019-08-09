@@ -1,5 +1,5 @@
 # pi-ffcam
-Trivial app to preview the RPi camera output on the RPi3
+Trivial app to preview the RPi camera output on the RPi3 and RPi4
 
 Streams 640x480 video from /dev/video0 using h264, then decodes it again using the h264_v4l2m2m hardware codec and displays in an SDL window.
 
