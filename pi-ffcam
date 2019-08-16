@@ -2,7 +2,7 @@
 #
 # Streams a 'live view' from the attached pi camera
 # (/dev/video0). Pulls the stream in h264, decodes
-# it using h264_v4l2m2m, and then displays it in an
+# it using a software codec, and then displays it in an
 # SDL window.
 #
 # Intended as a proof-of-concept only; you'd do things
@@ -42,6 +42,6 @@ ffmpeg -f video4linux2 -input_format h264 \
        -framerate 30 -re -i /dev/video0 \
        -vcodec copy -f matroska \
        - -nostats -loglevel 0 | \
-    ffplay -vcodec h264_v4l2m2m \
-           -window_title "Camera Live View (/dev/video0:h264, h264_v4l2m2m, sdl)" \
+    ffplay \
+           -window_title "Camera Live View (/dev/video0:h264, sdl)" \
            - -nostats -loglevel 0
