@@ -43,6 +43,8 @@ if pgrep --full 'ff(mpeg|play).*(/dev/video|v4l2m2m)' &>/dev/null; then
     exit 1
 fi
 # looks good to go, stream live view!
+# (attempt to run at high priority to optimize framerate)
+sudo renice -n -10 $$ &>/dev/null || true
 ffmpeg -f video4linux2 -input_format h264 \
        -video_size 640x480 \
        -framerate 30 -r 30 -re -i /dev/video0 \
