@@ -36,6 +36,12 @@ if ! [[ -e /dev/video0 ]]; then
     zenity --window-icon="${ICON}" --error --no-wrap --text="No /dev/video0 present! Do you have a camera module plugged in?" --timeout=5
     exit 1
 fi
+# check no other competing process running
+# (just a quick check, not watertight)
+if pgrep --full 'ff(mpeg|play).*(/dev/video|v4l2m2m)' &>/dev/null; then
+    zenity --window-icon="${ICON}" --error --no-wrap --text="Another application appears to be using V4L2. Quitting." --timeout=5
+    exit 1
+fi
 # looks good to go, stream live view!
 ffmpeg -f video4linux2 -input_format h264 \
        -video_size 640x480 \
