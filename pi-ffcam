@@ -45,7 +45,7 @@ fi
 # looks good to go, stream live view!
 ffmpeg -f video4linux2 -input_format h264 \
        -video_size 640x480 \
-       -framerate 30 -re -i /dev/video0 \
+       -framerate 30 -r 30 -re -i /dev/video0 \
        -vcodec copy -f matroska \
        - -nostats -loglevel 0 | \
     ffplay \
