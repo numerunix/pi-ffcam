@@ -24,32 +24,32 @@ ICON="/usr/share/pixmaps/pi-ffcam.png"
 MJR_VER=$(uname -r | cut -d '.' -f1)
 MNR_VER=$(uname -r | cut -d '.' -f2)
 if ((MJR_VER<4 || (MJR_VER==4 && MNR_VER<19))); then
-    zenity --window-icon="${ICON}" --error --no-wrap --text="You must be running <i>at least</i> kernel version 4.19 to use this!" --timeout=5
+    zenity --window-icon="${ICON}" --error --no-wrap --text="Questo programma può essere avviato  <i>almeno</i> su una versione 4.19 del kernel!" --timeout=5
     exit 1
 fi
-GPU_MEM_MIB="$(grep -o '[[:digit:]]*' <(vcgencmd get_mem gpu))"
+GPU_MEM_MIB="$(grep -o '[[:digit:]]*' <(/opt/vc/bin/vcgencmd get_mem gpu))"
 if ((GPU_MEM_MIB<128)); then
-    zenity --window-icon="${ICON}" --error --no-wrap --text="You must set gpu_mem=128 (or greater) to use this!" --timeout=5
+    zenity --window-icon="${ICON}" --error --no-wrap --text="Devi impostare almeno gpu_mem=128 nel file config.txt per usare questo programma!" --timeout=5
     exit 1
 fi
 if ! [[ -e /dev/video0 ]]; then
-    zenity --window-icon="${ICON}" --error --no-wrap --text="No /dev/video0 present! Do you have a camera module plugged in?" --timeout=5
+    zenity --window-icon="${ICON}" --error --no-wrap --text="Il dispositivo /dev/video0 non esiste! Hai inserito il modulo della videocamera?" --timeout=5
     exit 1
 fi
 # check no other competing process running
 # (just a quick check, not watertight)
 if pgrep --full 'ff(mpeg|play).*(/dev/video|v4l2m2m)' &>/dev/null; then
-    zenity --window-icon="${ICON}" --error --no-wrap --text="Another application appears to be using V4L2. Quitting." --timeout=5
+    zenity --window-icon="${ICON}" --error --no-wrap --text="Un'altra applicazione sembra che stia utilizzando V4L2. Il programma sarà terminato." --timeout=5
     exit 1
 fi
 # looks good to go, stream live view!
 # (attempt to run at high priority to optimize framerate)
-sudo renice -n -10 $$ &>/dev/null || true
+renice -n -10 $$ &>/dev/null || true
 ffmpeg -f video4linux2 -input_format h264 \
        -video_size 640x480 \
        -framerate 30 -r 30 -re -i /dev/video0 \
        -vcodec copy -f matroska \
        - -nostats -loglevel 0 | \
     ffplay \
-           -window_title "Camera Live View (/dev/video0:h264, sdl)" \
+           -window_title "Visione live della videocamera (/dev/video0:h264, sdl)" \
            - -nostats -loglevel 0
