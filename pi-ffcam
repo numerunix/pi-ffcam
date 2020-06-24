@@ -12,7 +12,7 @@
 # did, there'd be no need to encapsulate it and send
 # over a pipe, as here).
 #
-# Copyright (c) 2019 sakaki <sakaki@deciban.com>
+# Copyright (c) 2020 Giulio Sorrentino <gsorre84@gmail.com>
 # License: GPL v3+
 # NO WARRANTY
 
